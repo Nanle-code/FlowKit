@@ -1,146 +1,52 @@
-/**
- * useFlowConnect - Connect to Flow wallet with automatic COA creation
- * 
- * Wagmi-style hook for Flow authentication. Handles FCL wallet discovery,
- * COA creation, and auth state management.
- */
+import { useState, useCallback } from 'react'
+import { connect, disconnect } from '../src/client'
+import { useFlowKit } from './FlowKitProvider'
+import type { ConnectOptions, FlowKitUser } from '../src/types'
 
-import { useState, useCallback } from "react"
-import { connect as sdkConnect, disconnect as sdkDisconnect } from "../src/index"
-import { useFlowKitContext } from "./FlowKitProvider"
-import type { UseFlowConnectConfig, UseFlowConnectReturn } from "./types"
-import type { FlowKitUser } from "../src/types"
+interface UseFlowConnectReturn {
+  connect: (options?: ConnectOptions) => Promise<FlowKitUser>
+  disconnect: () => Promise<void>
+  user: FlowKitUser | null
+  isConnected: boolean
+  isLoading: boolean
+  error: Error | null
+}
 
-/**
- * Connect to Flow wallet with automatic COA creation
- * 
- * @example
- * ```tsx
- * function ConnectButton() {
- *   const { connect, disconnect, user, isConnected, isLoading } = useFlowConnect({
- *     onSuccess: (user) => console.log('Connected:', user.cadenceAddress),
- *     onError: (error) => console.error('Connection failed:', error)
- *   })
- * 
- *   if (isConnected) {
- *     return (
- *       <div>
- *         <p>Cadence: {user?.cadenceAddress}</p>
- *         <p>EVM: {user?.evmAddress}</p>
- *         <button onClick={disconnect}>Disconnect</button>
- *       </div>
- *     )
- *   }
- * 
- *   return (
- *     <button onClick={() => connect()} disabled={isLoading}>
- *       {isLoading ? 'Connecting...' : 'Connect Wallet'}
- *     </button>
- *   )
- * }
- * ```
- */
-export function useFlowConnect(config: UseFlowConnectConfig = {}): UseFlowConnectReturn {
-  const { user, isConnected, connect: contextConnect, disconnect: contextDisconnect } = useFlowKitContext()
+export function useFlowConnect(): UseFlowConnectReturn {
+  const { user, isConnected } = useFlowKit()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<FlowKitUser | undefined>(undefined)
 
-  const mutate = useCallback(async () => {
+  const handleConnect = useCallback(async (options?: ConnectOptions) => {
     setIsLoading(true)
     setError(null)
-
     try {
-      const connectedUser = await contextConnect(config)
-      setData(connectedUser)
-      config.onSuccess?.(connectedUser)
-      return connectedUser
+      const result = await connect(options ?? { withEVM: true })
+      return result
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err))
-      setError(error)
-      config.onError?.(error)
-      throw error
+      const e = err instanceof Error ? err : new Error(String(err))
+      setError(e)
+      throw e
     } finally {
       setIsLoading(false)
     }
-  }, [contextConnect, config])
+  }, [])
 
-  const disconnect = useCallback(async () => {
+  const handleDisconnect = useCallback(async () => {
     setIsLoading(true)
     try {
-      await contextDisconnect()
-      setData(undefined)
-      setError(null)
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err))
-      setError(error)
-      throw error
+      await disconnect()
     } finally {
       setIsLoading(false)
     }
-  }, [contextDisconnect])
-
-  const reset = useCallback(() => {
-    setData(undefined)
-    setError(null)
   }, [])
 
   return {
+    connect: handleConnect,
+    disconnect: handleDisconnect,
     user,
     isConnected,
-    data,
-    error,
     isLoading,
-    isSuccess: !!data && !error,
-    isError: !!error,
-    mutate,
-    mutateAsync: mutate,
-    disconnect,
-    reset,
+    error,
   }
-}
-
-/**
- * Hook to get current Flow user without connect functionality
- * 
- * @example
- * ```tsx
- * function UserProfile() {
- *   const user = useFlowUser()
- *   
- *   if (!user) return <p>Not connected</p>
- *   
- *   return (
- *     <div>
- *       <p>Cadence: {user.cadenceAddress}</p>
- *       <p>EVM: {user.evmAddress}</p>
- *     </div>
- *   )
- * }
- * ```
- */
-export function useFlowUser() {
-  const { user } = useFlowKitContext()
-  return user
-}
-
-/**
- * Hook to check if user is connected
- * 
- * @example
- * ```tsx
- * function ProtectedRoute() {
- *   const isConnected = useIsConnected()
- *   
- *   if (!isConnected) {
- *     return <Navigate to="/connect" />
- *   }
- *   
- *   return <Dashboard />
- * }
- * ```
- */
-export function useIsConnected(): boolean {
-  const { isConnected } = useFlowKitContext()
-  return isConnected
 }

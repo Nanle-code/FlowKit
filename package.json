@@ -1,16 +1,29 @@
 {
   "name": "flowkit",
-  "version": "0.4.0",
+  "version": "0.1.0",
   "description": "The missing SDK layer between Flow Cadence and EVM - with NFT support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./hooks": {
+      "import": "./hooks/index.ts",
+      "require": "./hooks/index.ts",
+      "types": "./hooks/index.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "demo": "python3 -m http.server 3000 --directory demo",
+    "build": "tsup src/index.ts --format cjs,esm --dts --out-dir dist",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "demo": "npx serve demo -p 3000",
+    "lint": "tsc --noEmit"
   },
   "keywords": ["flow", "cadence", "evm", "blockchain", "sdk"],
   "author": "",
@@ -19,13 +32,16 @@
     "@onflow/fcl": "^1.12.2"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "@onflow/fcl": ">=1.10.0",
+    "react": ">=18.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "@types/jest": "^29.5.11",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.1"
+    "@onflow/fcl": "^1.13.0",
+    "@types/jest": "^29.5.0",
+    "@types/react": "^18.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
   }
 }

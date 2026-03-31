@@ -4,8 +4,7 @@
 
 One API. Zero VM complexity. Auto-routes everything.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/flowkit/flowkit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Nanle-code/FlowKit) [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](#testing) [![Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://nanle-code.github.io/FlowKit/) [![Network](https://img.shields.io/badge/network-Flow%20Testnet-00d4ff)](https://developers.flow.com) [![Built for](https://img.shields.io/badge/built%20for-PL__Genesis%202026-purple)](https://pl-genesis-frontiers-of-collaboration-hackathon.devspot.app)
 
 ---
 
@@ -1054,7 +1053,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Links
 
-- **GitHub**: https://github.com/flowkit/flowkit
+- **GitHub**: https://github.com/Nanle-code/FlowKit
 - **Flow Documentation**: https://developers.flow.com
 - **Flow Discord**: https://discord.gg/flow
 - **Flow Forum**: https://forum.flow.com
@@ -1070,7 +1069,5 @@ Built using:
 - ERC-20 and ERC-721 standards
 
 ---
-
-**Built with ❤️ for the Flow ecosystem**
 
 **FlowKit - One API for Flow's Dual-VM Future** 🚀

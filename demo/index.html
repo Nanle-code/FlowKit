@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowKit — SDK Demo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+--bg: #0a0a0f;
+--surface: #111118;
+--surface2: #1a1a24;
+--border: #2a2a3a;
+--border-glow: #00d4ff33;
+--text: #e8e8f0;
+--muted: #6b6b80;
+--accent: #00d4ff;
+--accent2: #7c3aed;
+--green: #00ff88;
+--orange: #ff6b35;
+--red: #ff4444;
+--font-display: 'Syne', sans-serif;
+--font-mono: 'Space Mono', monospace;
+}
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: var(--font-mono);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+body::before {
+content: '';
+position: fixed;
+inset: 0;
+background-image:
+linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none;
+z-index: 0;
+}
+
+.layout {
+position: relative;
+z-index: 1;
+max-width: 960px;
+margin: 0 auto;
+padding: 0 24px 80px;
+}
+
+header {
+padding: 48px 0 40px;
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 24px;
+border-bottom: 1px solid var(--border);
+margin-bottom: 40px;
+}
+
+.logo-block { flex: 1; }
+
+.logo {
+font-family: var(--font-display);
+font-size: 42px;
+font-weight: 800;
+letter-spacing: -2px;
+line-height: 1;
+background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.logo-sub {
+font-size: 11px;
+color: var(--muted);
+margin-top: 6px;
+letter-spacing: .1em;
+text-transform: uppercase;
+}
+
+.version-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-size: 10px;
+padding: 4px 10px;
+border: 1px solid var(--border);
+border-radius: 20px;
+color: var(--muted);
+margin-top: 12px;
+}
+
+.dot-live {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: var(--green);
+animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+50% { opacity: .7; box-shadow: 0 0 0 4px rgba(0,255,136,0); }
+}
+
+.network-selector {
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+gap: 8px;
+}
+
+.net-btn {
+font-family: var(--font-mono);
+font-size: 11px;
+padding: 6px 12px;
+border: 1px solid var(--border);
+background: var(--surface);
+color: var(--muted);
+cursor: pointer;
+border-radius: 4px;
+transition: all .15s;
+}
+
+.net-btn.active { border-color: var(--accent); color: var(--accent); }
+.net-btn:hover:not(.active) { border-color: var(--border-glow); color: var(--text); }
+
+.section { margin-bottom: 32px; }
+
+.section-label {
+font-size: 10px;
+letter-spacing: .12em;
+text-transform: uppercase;
+color: var(--muted);
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.section-label::after {
+content: '';
+flex: 1;
+height: 1px;
+background: var(--border);
+}
+
+.card {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 8px;
+overflow: hidden;
+transition: border-color .2s;
+}
+
+.card:hover { border-color: var(--border-glow); }
+
+.card-header {
+padding: 14px 18px;
+border-bottom: 1px solid var(--border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.card-title {
+font-family: var(--font-display);
+font-size: 14px;
+font-weight: 600;
+color: var(--text);
+}
+
+.card-body { padding: 18px; }
+
+.user-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+}
+
+.addr-block {
+background: var(--surface2);
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 12px 14px;
+}
+
+.addr-label {
+font-size: 9px;
+letter-spacing: .1em;
+text-transform: uppercase;
+color: var(--muted);
+margin-bottom: 6px;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.vm-pill {
+font-size: 8px;
+padding: 1px 5px;
+border-radius: 3px;
+font-weight: 700;
+letter-spacing: .05em;
+}
+
+.vm-cadence { background: rgba(0,212,255,.15); color: var(--accent); }
+.vm-evm { background: rgba(124,58,237,.2); color: #a78bfa; }
+
+.addr-value {
+font-size: 12px;
+color: var(--text);
+word-break: break-all;
+line-height: 1.4;
+}
+
+.addr-value.empty { color: var(--muted); font-style: italic; }
+
+.bal-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 8px;
+}
+
+.bal-num {
+font-size: 18px;
+font-weight: 700;
+color: var(--accent);
+}
+
+.bal-label { font-size: 10px; color: var(--muted); }
+
+.btn-connect {
+font-family: var(--font-mono);
+font-size: 13px;
+font-weight: 700;
+padding: 14px 28px;
+border: none;
+border-radius: 6px;
+background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+color: #000;
+cursor: pointer;
+letter-spacing: .04em;
+transition: opacity .15s, transform .1s;
+width: 100%;
+}
+
+.btn-connect:hover { opacity: .9; transform: translateY(-1px); }
+.btn-connect:active { transform: translateY(0); }
+.btn-connect:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+font-family: var(--font-mono);
+font-size: 12px;
+padding: 10px 18px;
+border: 1px solid var(--border);
+border-radius: 5px;
+background: var(--surface2);
+color: var(--text);
+cursor: pointer;
+transition: all .15s;
+}
+
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.form-row {
+display: flex;
+flex-direction: column;
+gap: 6px;
+margin-bottom: 14px;
+}
+
+.form-label {
+font-size: 10px;
+letter-spacing: .08em;
+text-transform: uppercase;
+color: var(--muted);
+}
+
+.form-input {
+font-family: var(--font-mono);
+font-size: 13px;
+padding: 10px 14px;
+background: var(--surface2);
+border: 1px solid var(--border);
+border-radius: 5px;
+color: var(--text);
+width: 100%;
+transition: border-color .15s;
+}
+
+.form-input:focus {
+outline: none;
+border-color: var(--accent);
+box-shadow: 0 0 0 3px rgba(0,212,255,.08);
+}
+
+.form-input::placeholder { color: var(--muted); }
+
+.vm-detect {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 11px;
+margin-top: 6px;
+min-height: 18px;
+color: var(--muted);
+transition: color .2s;
+}
+
+.vm-detect.cadence { color: var(--accent); }
+.vm-detect.evm { color: #a78bfa; }
+.vm-detect.crossvm { color: var(--orange); }
+.vm-detect.unknown { color: var(--muted); }
+
+.route-viz {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 10px 14px;
+background: var(--surface2);
+border: 1px solid var(--border);
+border-radius: 5px;
+margin-bottom: 14px;
+font-size: 11px;
+}
+
+.route-node {
+padding: 3px 8px;
+border-radius: 4px;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: .04em;
+}
+
+.route-arrow {
+color: var(--muted);
+font-size: 14px;
+flex-shrink: 0;
+}
+
+.tx-log {
+background: var(--surface2);
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 14px;
+max-height: 280px;
+overflow-y: auto;
+font-size: 12px;
+line-height: 1.6;
+}
+
+.tx-log::-webkit-scrollbar { width: 4px; }
+.tx-log::-webkit-scrollbar-track { background: transparent; }
+.tx-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.log-entry {
+padding: 6px 0;
+border-bottom: 1px solid var(--border);
+display: flex;
+gap: 10px;
+align-items: flex-start;
+}
+
+.log-entry:last-child { border-bottom: none; }
+.log-time { color: var(--muted); flex-shrink: 0; font-size: 10px; padding-top: 2px; }
+.log-icon { flex-shrink: 0; }
+.log-text { color: var(--text); flex: 1; }
+
+.log-hash {
+font-size: 10px;
+color: var(--accent);
+cursor: pointer;
+text-decoration: underline;
+text-decoration-style: dotted;
+margin-top: 2px;
+}
+
+.log-empty { color: var(--muted); font-style: italic; text-align: center; padding: 24px; }
+
+.code-block {
+background: #0d0d15;
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 16px;
+font-size: 12px;
+line-height: 1.7;
+overflow-x: auto;
+position: relative;
+}
+
+.code-block .kw  { color: #a78bfa; }
+.code-block .fn  { color: var(--accent); }
+.code-block .str { color: var(--green); }
+.code-block .cmt { color: var(--muted); font-style: italic; }
+.code-block .num { color: var(--orange); }
+
+.status-badge {
+display: inline-flex;
+align-items: center;
+gap: 4px;
+font-size: 9px;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 20px;
+letter-spacing: .06em;
+text-transform: uppercase;
+}
+
+.status-pending { background: rgba(255,107,53,.15); color: var(--orange); }
+.status-success { background: rgba(0,255,136,.12); color: var(--green); }
+.status-error   { background: rgba(255,68,68,.15); color: var(--red); }
+
+.feature-row {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-top: 16px;
+}
+
+.feature-pill {
+font-size: 10px;
+padding: 4px 10px;
+border: 1px solid var(--border);
+border-radius: 20px;
+color: var(--muted);
+display: flex;
+align-items: center;
+gap: 5px;
+}
+
+.feature-pill .icon { font-size: 12px; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+
+.tab {
+font-family: var(--font-mono);
+font-size: 11px;
+padding: 8px 16px;
+border: none;
+background: none;
+color: var(--muted);
+cursor: pointer;
+border-bottom: 2px solid transparent;
+margin-bottom: -1px;
+transition: all .15s;
+letter-spacing: .04em;
+}
+
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab:hover:not(.active) { color: var(--text); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(8px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+
+.card { animation: fadeIn .3s ease both; }
+.card:nth-child(2) { animation-delay: .05s; }
+.card:nth-child(3) { animation-delay: .1s; }
+
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+
+.spinning { display: inline-block; animation: spin .7s linear infinite; }
+
+.two-col {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+}
+
+@media (max-width: 640px) {
+.two-col { grid-template-columns: 1fr; }
+.user-grid { grid-template-columns: 1fr; }
+.logo { font-size: 30px; }
+header { flex-direction: column; }
+.network-selector { align-items: flex-start; flex-direction: row; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<header>
+<div class="logo-block">
+<div class="logo">FlowKit</div>
+<div class="logo-sub">The missing SDK layer between Cadence &amp; EVM</div>
+<div class="version-badge">
+<span class="dot-live"></span>v0.1.0-mvp · PL_Genesis Hackathon 2026
+</div>
+</div>
+<div class="network-selector">
+<div style="font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Network</div>
+<button class="net-btn" onclick="setNetwork('mainnet')">mainnet</button>
+<button class="net-btn active" onclick="setNetwork('testnet')">testnet</button>
+<button class="net-btn" onclick="setNetwork('emulator')">emulator</button>
+</div>
+</header>
+
+<div class="section">
+<div class="section-label">01 · flowkit.connect()</div>
+<div class="two-col">
+<div class="card">
+<div class="card-header">
+<div class="card-title">Authentication</div>
+<span id="auth-status" class="status-badge status-error">disconnected</span>
+</div>
+<div class="card-body">
+<div id="connect-panel">
+<p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+One call authenticates via FCL and auto-creates a Cadence-Owned Account (COA) for EVM access.
+</p>
+<button class="btn-connect" id="connect-btn" onclick="handleConnect()">connect()</button>
+</div>
+<div id="user-panel" style="display:none">
+<div class="user-grid">
+<div class="addr-block">
+<div class="addr-label">Cadence<span class="vm-pill vm-cadence">CADENCE</span></div>
+<div class="addr-value" id="cadence-addr">—</div>
+<div class="bal-row">
+<div>
+<div class="bal-num" id="cadence-bal">—</div>
+<div class="bal-label">FLOW (vault)</div>
+</div>
+<button class="btn-secondary" style="font-size:10px;padding:5px 8px" onclick="refreshBalance()">↻</button>
+</div>
+</div>
+<div class="addr-block">
+<div class="addr-label">EVM / COA<span class="vm-pill vm-evm">EVM</span></div>
+<div class="addr-value" id="evm-addr">—</div>
+<div class="bal-row">
+<div>
+<div class="bal-num" id="evm-bal">—</div>
+<div class="bal-label">FLOW (COA)</div>
+</div>
+</div>
+</div>
+</div>
+<button class="btn-secondary" style="margin-top:14px;width:100%;font-size:11px" onclick="handleDisconnect()">disconnect()</button>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header">
+<div class="card-title">Code</div>
+<span style="font-size:10px;color:var(--muted)">TypeScript</span>
+</div>
+<div class="card-body">
+<div class="code-block">
+<span class="kw">import</span> { <span class="fn">init</span>, <span class="fn">connect</span> } <span class="kw">from</span> <span class="str">'flowkit'</span>
+
+<span class="cmt">// One-time setup</span>
+<span class="fn">init</span>({ network: <span class="str">'testnet'</span> })
+
+<span class="cmt">// Connect — auto-creates COA</span>
+<span class="kw">const</span> user = <span class="kw">await</span> <span class="fn">connect</span>({withEVM: <span class="kw">true</span>})
+
+<span class="cmt">// Both addresses resolved</span>
+user.cadenceAddress  <span class="cmt">// 0x1d007d755531709b</span>
+user.evmAddress      <span class="cmt">// 0xAbCd1234...EfGh</span>
+</div>
+<div class="feature-row">
+<div class="feature-pill"><span class="icon">🔑</span> Passkey support</div>
+<div class="feature-pill"><span class="icon">🌐</span> Social login</div>
+<div class="feature-pill"><span class="icon">📱</span> WalletConnect</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">02 · flowkit.transfer() — auto-routes Cadence ↔ EVM</div>
+<div class="two-col">
+<div class="card">
+<div class="card-header">
+<div class="card-title">Transfer FLOW</div>
+<span id="transfer-status" class="status-badge" style="display:none"></span>
+</div>
+<div class="card-body">
+<div class="form-row">
+<div class="form-label">Token</div>
+<input class="form-input" value="FLOW" disabled style="opacity:.6;cursor:not-allowed">
+</div>
+<div class="form-row">
+<div class="form-label">Amount</div>
+<input class="form-input" id="transfer-amount" type="text" placeholder="0.5" value="0.1">
+</div>
+<div class="form-row">
+<div class="form-label">Recipient address</div>
+<input class="form-input" id="transfer-to" type="text"
+placeholder="0x... (Cadence or EVM)"
+oninput="detectRecipientVM(this.value)">
+<div class="vm-detect unknown" id="vm-detect-label">
+<span>enter an address to detect VM</span>
+</div>
+</div>
+<div class="route-viz" id="route-viz" style="display:none">
+<span class="route-node vm-cadence">Cadence</span>
+<span class="route-arrow" id="route-arrow">→</span>
+<span class="route-node" id="route-target">—</span>
+<span style="margin-left:auto;font-size:10px;color:var(--muted)" id="route-type">—</span>
+</div>
+<button class="btn-connect" id="transfer-btn" onclick="handleTransfer()" disabled style="margin-top:4px">transfer()</button>
+</div>
+</div>
+<div class="card">
+<div class="card-header">
+<div class="card-title">One API · Three Routes</div>
+</div>
+<div class="card-body">
+<div class="tabs">
+<button class="tab active" onclick="switchTab(this,'tab-c2c')">Cadence→Cadence</button>
+<button class="tab" onclick="switchTab(this,'tab-c2e')">Cadence→EVM</button>
+<button class="tab" onclick="switchTab(this,'tab-e2c')">EVM→Cadence</button>
+</div>
+<div class="tab-content active" id="tab-c2c">
+<div class="code-block">
+<span class="kw">await</span> <span class="fn">transfer</span>({
+  token:  <span class="str">'FLOW'</span>,
+  amount: <span class="str">'1.0'</span>,
+  <span class="cmt">// Cadence address (8 bytes)</span>
+  to: <span class="str">'0x1d007d755531709b'</span>
+})
+<span class="cmt">// → routes via FungibleToken tx</span>
+<span class="cmt">// → single FCL signature</span>
+</div>
+</div>
+<div class="tab-content" id="tab-c2e">
+<div class="code-block">
+<span class="kw">await</span> <span class="fn">transfer</span>({
+  token:  <span class="str">'FLOW'</span>,
+  amount: <span class="str">'1.0'</span>,
+  <span class="cmt">// EVM address (20 bytes) — auto-detected</span>
+  to: <span class="str">'0xAbCd1234...EfGh5678'</span>
+})
+<span class="cmt">// → cross-VM bridge via COA.transfer()</span>
+<span class="cmt">// → atomic, single signature</span>
+</div>
+</div>
+<div class="tab-content" id="tab-e2c">
+<div class="code-block">
+<span class="kw">await</span> <span class="fn">transfer</span>({
+  token:  <span class="str">'FLOW'</span>,
+  amount: <span class="str">'1.0'</span>,
+  from: <span class="str">'0xAbCd...'</span>,   <span class="cmt">// EVM source</span>
+  to:   <span class="str">'0x1d007d...'</span>  <span class="cmt">// Cadence dest</span>
+})
+<span class="cmt">// → COA.withdraw() → Cadence vault</span>
+<span class="cmt">// → atomic, single signature</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">03 · flowkit.batch() &amp; sponsor() — coming alive</div>
+<div class="two-col">
+<div class="card">
+<div class="card-header">
+<div class="card-title">Batch Transactions</div>
+</div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">
+Execute N EVM calls atomically with <strong style="color:var(--text)">one wallet signature</strong>.
+All succeed or all revert.
+</p>
+<div class="code-block">
+<span class="kw">await</span> <span class="fn">batch</span>([
+  <span class="cmt">// 1. Approve USDC to vault</span>
+  {
+    contractAddress: USDC_EVM,
+    calldata: <span class="fn">encodeApprove</span>(VAULT, amount)
+  },
+  <span class="cmt">// 2. Deposit into vault</span>
+  {
+    contractAddress: VAULT_EVM,
+    calldata: <span class="fn">encodeDeposit</span>(amount)
+  }
+])
+<span class="cmt">// → ONE signature, TWO EVM calls</span>
+<span class="cmt">// → atomic: if deposit fails, approve reverts too</span>
+</div>
+<div class="feature-row">
+<div class="feature-pill"><span class="icon">⚡</span> Up to 10 calls</div>
+<div class="feature-pill"><span class="icon">🔒</span> Atomic revert</div>
+<div class="feature-pill"><span class="icon">✍️</span> 1 signature</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header">
+<div class="card-title">Gas Sponsorship</div>
+</div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">
+Users pay <strong style="color:var(--green)">zero gas fees</strong>. Your backend sponsor covers costs. 
+New users onboard with social login and transact immediately.
+</p>
+<div class="code-block">
+<span class="cmt">// User has 0 FLOW — doesn't matter</span>
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">sponsor</span>({
+  cadence: MY_TRANSACTION,
+  args: (arg, t) => [arg(<span class="str">'hello'</span>, t.String)],
+  sponsor: <span class="str">'0xYourBackendSponsor'</span>
+})
+
+result.feeSponsored  <span class="cmt">// true ✓</span>
+
+<span class="cmt">// proposer = user (their sequence #)</span>
+<span class="cmt">// payer    = sponsor (pays fee)</span>
+</div>
+<div class="feature-row">
+<div class="feature-pill"><span class="icon">🎫</span> Zero gas for users</div>
+<div class="feature-pill"><span class="icon">🧾</span> Flow native feature</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">04 · Transaction log</div>
+<div class="card">
+<div class="card-header">
+<div class="card-title">Live Activity</div>
+<button class="btn-secondary" style="font-size:10px;padding:4px 10px" onclick="clearLog()">clear</button>
+</div>
+<div class="card-body" style="padding:0">
+<div class="tx-log" id="tx-log">
+<div class="log-empty">No transactions yet. Connect and transfer to see activity.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="border-top:1px solid var(--border);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+<div style="font-size:11px;color:var(--muted)">
+FlowKit v0.1 · Built for PL_Genesis: Frontiers of Collaboration · Flow Testnet
+</div>
+<div style="display:flex;gap:12px">
+<a href="https://github.com/flowkit" target="_blank" style="font-size:11px;color:var(--muted);text-decoration:none;transition:color .15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">GitHub →</a>
+<a href="https://developers.flow.com" target="_blank" style="font-size:11px;color:var(--muted);text-decoration:none;transition:color .15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Flow Docs →</a>
+</div>
+</div>
+</div>
+
+<script>
+// ─── Mock state (simulates FlowKit SDK in browser) ────────────────
+
+const MOCK_USER = {
+  cadenceAddress: '0x1d007d755531709b',
+  evmAddress: '0x742d35Cc6634C0532925a3b8D4e9bC5B1e4E1Fa1',
+  loggedIn: true,
+}
+
+let currentUser = null
+let currentNetwork = 'testnet'
+let logEntries = []
+
+// ─── Helpers ──────────────────────────────────────────────────────
+
+function detectVMFromAddress(addr) {
+  if (!addr || addr.length < 4) return 'unknown'
+  const clean = addr.trim()
+  if (/^0x[0-9a-fA-F]{40}$/.test(clean)) return 'evm'
+  if (/^0x[0-9a-fA-F]{1,16}$/.test(clean)) return 'cadence'
+  return 'unknown'
+}
+
+function shortAddr(addr) {
+  if (!addr) return '—'
+  if (addr.length <= 18) return addr
+  return addr.slice(0, 10) + '...' + addr.slice(-6)
+}
+
+function now() {
+  return new Date().toLocaleTimeString('en-US', { 
+    hour12: false, 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  })
+}
+
+function addLog(icon, text, hash = null, type = 'info') {
+  const log = document.getElementById('tx-log')
+  const empty = log.querySelector('.log-empty')
+  if (empty) empty.remove()
+
+  const entry = document.createElement('div')
+  entry.className = 'log-entry'
+  entry.style.animation = 'fadeIn .2s ease both'
+
+  const explorerBase = currentNetwork === 'mainnet'
+    ? 'https://flowscan.io/tx'
+    : 'https://testnet.flowscan.io/tx'
+
+  entry.innerHTML = `
+    <div class="log-time">${now()}</div>
+    <div class="log-icon">${icon}</div>
+    <div class="log-text">
+      ${text}
+      ${hash ? `<div class="log-hash" onclick="window.open('${explorerBase}/${hash}','_blank')">${shortAddr(hash)} ↗</div>` : ''}
+    </div>
+  `
+  log.prepend(entry)
+}
+
+function clearLog() {
+  document.getElementById('tx-log').innerHTML = '<div class="log-empty">No transactions yet.</div>'
+}
+
+function setStatus(id, text, type) {
+  const el = document.getElementById(id)
+  el.style.display = 'inline-flex'
+  el.textContent = text
+  el.className = `status-badge status-${type}`
+}
+
+function sleep(ms) { 
+  return new Promise(r => setTimeout(r, ms)) 
+}
+
+// ─── Network ──────────────────────────────────────────────────────
+
+function setNetwork(net) {
+  currentNetwork = net
+  document.querySelectorAll('.net-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === net)
+  })
+  addLog('🌐', `Switched to <strong>${net}</strong>`)
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────
+
+async function handleConnect() {
+  const btn = document.getElementById('connect-btn')
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinning">◌</span> connecting...'
+  
+  addLog('🔑', 'Calling <code>connect({ withEVM: true })</code>...')
+  
+  await sleep(800)
+  addLog('📡', 'FCL authentication flow opened')
+  await sleep(600)
+  addLog('⛓️', 'Creating Cadence-Owned Account (COA) for EVM...')
+  await sleep(700)
+  
+  currentUser = MOCK_USER
+  addLog('✅', `Connected! Cadence: <code>${shortAddr(MOCK_USER.cadenceAddress)}</code>`, null)
+  addLog('🔗', `COA resolved: <code>${shortAddr(MOCK_USER.evmAddress)}</code> (EVM)`, null)
+  
+  document.getElementById('connect-panel').style.display = 'none'
+  document.getElementById('user-panel').style.display = 'block'
+  document.getElementById('cadence-addr').textContent = MOCK_USER.cadenceAddress
+  document.getElementById('evm-addr').textContent = shortAddr(MOCK_USER.evmAddress)
+  document.getElementById('auth-status').textContent = 'connected'
+  document.getElementById('auth-status').className = 'status-badge status-success'
+  
+  await refreshBalance()
+  document.getElementById('transfer-btn').disabled = false
+}
+
+async function handleDisconnect() {
+  currentUser = null
+  document.getElementById('connect-panel').style.display = 'block'
+  document.getElementById('user-panel').style.display = 'none'
+  document.getElementById('connect-btn').disabled = false
+  document.getElementById('connect-btn').textContent = 'connect()'
+  document.getElementById('auth-status').textContent = 'disconnected'
+  document.getElementById('auth-status').className = 'status-badge status-error'
+  document.getElementById('transfer-btn').disabled = true
+  addLog('🔌', 'Disconnected')
+}
+
+async function refreshBalance() {
+  addLog('💰', 'Fetching balances across both VMs...')
+  await sleep(400)
+  const cadBal = (Math.random() * 20 + 5).toFixed(4)
+  const evmBal = (Math.random() * 5 + 1).toFixed(4)
+  document.getElementById('cadence-bal').textContent = cadBal
+  document.getElementById('evm-bal').textContent = evmBal
+  addLog('📊', `Cadence vault: <strong>${cadBal} FLOW</strong> · COA: <strong>${evmBal} FLOW</strong>`)
+}
+
+// ─── Transfer ─────────────────────────────────────────────────────
+
+function detectRecipientVM(addr) {
+  const label = document.getElementById('vm-detect-label')
+  const viz = document.getElementById('route-viz')
+  const vm = detectVMFromAddress(addr)
+  
+  const labels = {
+    cadence: { cls: 'cadence', text: '↳ Cadence address detected (8-byte, Flow native)' },
+    evm:     { cls: 'evm',     text: '↳ EVM address detected (20-byte, Ethereum-compatible)' },
+    unknown: { cls: 'unknown', text: 'enter an address to detect VM' },
+  }
+  
+  const l = labels[vm] || labels.unknown
+  label.className = `vm-detect ${l.cls}`
+  label.innerHTML = `<span>${l.text}</span>`
+  
+  if (vm !== 'unknown') {
+    viz.style.display = 'flex'
+    const target = document.getElementById('route-target')
+    const routeType = document.getElementById('route-type')
+    const routeArrow = document.getElementById('route-arrow')
+    
+    if (vm === 'cadence') {
+      target.textContent = 'Cadence'
+      target.className = 'route-node vm-cadence'
+      routeType.textContent = 'direct · FungibleToken tx'
+      routeArrow.textContent = '→'
+      routeArrow.style.color = 'var(--accent)'
+    } else {
+      target.textContent = 'EVM / COA'
+      target.className = 'route-node vm-evm'
+      routeType.textContent = 'cross-VM · bridge via COA'
+      routeArrow.textContent = '⇌'
+      routeArrow.style.color = 'var(--orange)'
+    }
+  } else {
+    viz.style.display = 'none'
+  }
+}
+
+async function handleTransfer() {
+  if (!currentUser) {
+    addLog('⚠️', 'Connect first!')
+    return
+  }
+  
+  const amount = document.getElementById('transfer-amount').value.trim()
+  const to = document.getElementById('transfer-to').value.trim()
+  
+  if (!amount || !to) {
+    addLog('⚠️', 'Fill in amount and recipient')
+    return
+  }
+  
+  const toVM = detectVMFromAddress(to)
+  if (toVM === 'unknown') {
+    addLog('❌', 'Invalid address — cannot detect VM')
+    return
+  }
+  
+  const btn = document.getElementById('transfer-btn')
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinning">◌</span> sending...'
+  setStatus('transfer-status', 'pending', 'pending')
+  
+  const route = toVM === 'cadence' ? 'cadence' : 'cross-vm'
+  const routeLabel = route === 'cadence' ? 'Cadence → Cadence' : 'Cadence → EVM (cross-VM bridge)'
+  
+  addLog('📤', `Calling <code>transfer({ token: 'FLOW', amount: '${amount}', to: '${shortAddr(to)}' })</code>`)
+  await sleep(400)
+  addLog('🔍', `VM detected: <strong>${toVM}</strong> · Route: <strong>${routeLabel}</strong>`)
+  await sleep(500)
+  addLog('✍️', 'Requesting user signature via FCL wallet...')
+  await sleep(900)
+  addLog('⛓️', route === 'cadence' 
+    ? 'Executing FungibleToken transfer transaction...' 
+    : 'Executing cross-VM bridge via COA.transfer()...')
+  await sleep(800)
+  
+  const txHash = '0x' + Array.from({length:64},()=>Math.floor(Math.random()*16).toString(16)).join('')
+  addLog('✅', `Transfer complete! <strong>${amount} FLOW</strong> sent to <code>${shortAddr(to)}</code>`, txHash, 'success')
+  setStatus('transfer-status', 'success', 'success')
+  
+  btn.disabled = false
+  btn.textContent = 'transfer()'
+  await refreshBalance()
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────
+
+function switchTab(btn, targetId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+  btn.classList.add('active')
+  document.getElementById(targetId).classList.add('active')
+}
+
+// ─── Init log ─────────────────────────────────────────────────────
+
+addLog('🚀', 'FlowKit demo initialized · Network: <strong>testnet</strong>')
+addLog('📦', 'SDK packages loaded: <code>flowkit@0.1.0</code>')
+</script>
+</body>
+</html>
